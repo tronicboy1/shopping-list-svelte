@@ -19,7 +19,6 @@
 			map((user) => Boolean(user))
 		)
 		.subscribe((isLoggedIn) => {
-			console.log('logged in?', isLoggedIn);
 			if (isLoggedIn) return;
 			goto('/auth');
 		});
