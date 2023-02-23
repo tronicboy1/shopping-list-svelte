@@ -1,7 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import type { User } from 'firebase/auth';
-import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
 import { Observable, shareReplay, filter, map } from 'rxjs';
 import type {} from 'rxjs';
 import { getDatabase } from 'firebase/database';
@@ -54,14 +53,5 @@ export class Firebase {
 		return getStorage(this.app);
 	}
 }
-
-if (process.env.NODE_ENV === 'development') {
-	//@ts-ignore
-	self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
-}
-export const appCheck = initializeAppCheck(Firebase.app, {
-	provider: new ReCaptchaV3Provider('6LcuLlsgAAAAADL_n_1hS7zeQMKX6xbi10jQYIYR'),
-	isTokenAutoRefreshEnabled: true
-});
 
 Firebase.auth.useDeviceLanguage();
