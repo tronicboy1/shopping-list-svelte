@@ -1,0 +1,75 @@
+{
+  "rules": {
+    "common" : {
+      ".read": "auth.uid != null",
+      ".write": "auth.uid != null"
+    },
+    "$uid" : {
+      "SHOPPING": {
+        ".read" : "$uid === auth.uid",
+      	".write": "$uid === auth.uid",
+        "$item": {
+          ".indexOn": ["dateAdded"],
+          ".validate": "newData.hasChildren(['item', 'dateAdded', 'order'])",
+          "item": { ".validate": "newData.isString() && newData.val().length <= 32 && newData.val().length > 0" },
+          "priority": { ".validate": "newData.isBoolean()" },
+          "amount": { ".validate": "newData.isNumber()" },
+          "imagePath": { ".validate": "newData.isString()" },
+          "memo": { ".validate": "newData.isString() && newData.val().length < 2000" },
+          "dateAdded": { ".validate": "newData.isNumber() && newData.val() <= now" },
+          "order": { ".validate": "newData.isNumber() && newData.val() >= 0" }
+        }
+      },
+      "SHOPPING-LISTS": {
+        ".read" : "$uid === auth.uid",
+      		".write": "$uid === auth.uid",
+        "$listId": {
+        	".read" : "$uid === auth.uid",
+      		".write": "$uid === auth.uid",
+          ".validate": "newData.hasChildren(['listName'])",
+          "listName": { ".validate": "newData.isString()" },
+          "data": {
+            "$item": {
+          		".indexOn": ["dateAdded"],
+          		".validate": "newData.hasChildren(['item', 'dateAdded', 'order'])",
+          		"item": { ".validate": "newData.isString() && newData.val().length <= 32 && newData.val().length > 0" },
+          		"priority": { ".validate": "newData.isBoolean()" },
+          		"amount": { ".validate": "newData.isNumber()" },
+          		"memo": { ".validate": "newData.isString() && newData.val().length < 2000" },
+          		"dateAdded": { ".validate": "newData.isNumber() && newData.val() <= now" },
+          		"order": { ".validate": "newData.isNumber() && newData.val() >= 0" }
+          }
+          }
+        }
+      },
+      "CHORES": {
+        ".read" : "$uid === auth.uid",
+        ".write": "$uid === auth.uid",
+        "$chore": {
+          ".indexOn": ["lastCompleted"],
+          ".validate": "newData.hasChildren(['title', 'lastCompleted'])",
+          "title": { ".validate": "newData.isString() && newData.val().length <= 32 && newData.val().length > 0" },
+          "lastCompleted": { ".validate": "newData.isNumber() && newData.val() <= now" },
+          "memo": { ".validate": "newData.isString() && newData.val().length < 2000" }
+        }
+      },
+      "SETTINGS": {
+        ".read" : "$uid === auth.uid",
+      	".write": "$uid === auth.uid",
+      }
+    },
+    "NOTIFICATIONS": {
+      "$uid": {
+        ".read" : "$uid === auth.uid",
+      	".write": "$uid === auth.uid",
+      }
+    },
+    "FCM": {
+      "$uid": {
+        ".read" : "$uid === auth.uid",
+      	".write": "$uid === auth.uid",
+        ".validate" : "newData.child('0').exists()"
+      }
+    }
+  }
+}
