@@ -32,6 +32,8 @@
 			.subscribe()
 	);
 
+	let showAddList = false;
+	let newListName = '';
 	const lists$ = Firebase.uid$.pipe(
 		switchMap((uid) => ListService.getLists(uid)),
 		map((lists) => Object.entries(lists)),
@@ -61,6 +63,22 @@
 				mergeMap((uid) => ListService.addItem(uid, listId, { item: todo }))
 			)
 			.subscribe(() => form.reset());
+	};
+
+	const handleNewList = () => {
+		if (newListName.length > 32) return;
+		Firebase.uid$
+			.pipe(
+				first(),
+				mergeMap((uid) => ListService.addList(uid, newListName))
+			)
+			.subscribe({
+				next: () => {
+					newListName = '';
+					showAddList = false;
+				},
+				error: (error) => alert(error)
+			});
 	};
 </script>
 
@@ -103,7 +121,45 @@
 	{/each}
 </ul>
 
+{#if showAddList}
+	<div class="card">
+		<form autocomplete="off">
+			<input
+				on:blur={() => (showAddList = false)}
+				id="list-name"
+				name="list-name"
+				minlength="1"
+				type="text"
+				maxlength="33"
+				required
+			/>
+			<button id="add" type="submit">
+				<svg xmlns="http://www.w3.org/2000/svg" height="48" width="48" viewBox="0, 0, 48, 48">
+					<path d="M22.5 38V25.5H10V22.5H22.5V10H25.5V22.5H38V25.5H25.5V38Z" />
+				</svg>
+			</button>
+		</form>
+	</div>
+{:else}
+	<div id="open-add-list" on:click={() => (showAddList = true)} on:keypress={() => {}}>
+		<svg xmlns="http://www.w3.org/2000/svg" height="48" width="48" viewBox="0, 0, 48, 48">
+			<path d="M22.5 38V25.5H10V22.5H22.5V10H25.5V22.5H38V25.5H25.5V38Z" />
+		</svg>
+	</div>
+{/if}
+
 <style>
+	#open-add-list {
+		display: flex;
+		width: 50px;
+		height: 50px;
+		margin: 1rem auto;
+		background-color: var(--secondary-color);
+		border: 1px solid var(--secondary-color);
+		border-radius: 50%;
+		cursor: pointer;
+	}
+
 	form {
 		display: flex;
 		flex-direction: row;

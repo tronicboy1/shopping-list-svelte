@@ -51,6 +51,10 @@ export class ListService {
 		);
 	}
 
+	public static addList(uid: string, listName: string) {
+		return push(ref(Firebase.db, `${uid}/SHOPPING-LISTS/`), { listName, data: {} });
+	}
+
 	public static addItem(uid: string, listId: string, newData: Partial<ShoppingListItem>) {
 		const factory: ShoppingListItem = {
 			item: '',
