@@ -4,10 +4,14 @@
 	import List from './shopping-list.svelte';
 	import Spinner from './loading-spinner.svelte';
 	import { first, mergeMap, switchMap } from 'rxjs';
+	import { stopWhileHidden } from '$lib/pipe-operators';
 
 	let showAddList = false;
 	let newListName = '';
-	const lists$ = Firebase.uid$.pipe(switchMap((uid) => ListService.getLists(uid)));
+	const lists$ = Firebase.uid$.pipe(
+		stopWhileHidden(),
+		switchMap((uid) => ListService.getLists(uid))
+	);
 
 	const handleNewList = () => {
 		if (newListName.length > 32) return;

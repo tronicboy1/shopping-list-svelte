@@ -79,7 +79,9 @@
 					</li>
 				{/each}
 			{:else}
-				<button type="button" class="delete" on:click={() => deleteClick$.next()}>Delete List</button>
+				<button type="button" class="delete" on:click={() => deleteClick$.next()}
+					>Delete List</button
+				>
 			{/if}
 		</ul>
 	</div>
