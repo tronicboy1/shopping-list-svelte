@@ -1,6 +1,6 @@
 import { child, DataSnapshot, get, onValue, push, ref, remove, set } from 'firebase/database';
 import { ref as getStorageRef, deleteObject } from 'firebase/storage';
-import { from, map, mergeMap, Observable, startWith, timeout } from 'rxjs';
+import { from, map, mergeMap, Observable, timeout } from 'rxjs';
 import { Firebase } from './firebase';
 
 export type ShoppingListData = Record<string, ShoppingListItem>;
@@ -48,7 +48,6 @@ export class ListService {
 						: []
 				}))
 			),
-			startWith([])
 		));
 	}
 

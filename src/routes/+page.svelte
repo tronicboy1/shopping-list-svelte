@@ -2,6 +2,7 @@
 	import { Firebase } from '$lib/firebase';
 	import { ListService } from '$lib/list.service';
 	import List from './shopping-list.svelte';
+	import Spinner from './loading-spinner.svelte';
 	import { first, mergeMap, switchMap } from 'rxjs';
 
 	let showAddList = false;
@@ -31,6 +32,8 @@
 			<List {list} />
 		{/each}
 	</ul>
+{:else}
+	<Spinner />
 {/if}
 
 {#if showAddList}
@@ -38,7 +41,7 @@
 		<form autocomplete="off" on:submit|preventDefault={handleNewList}>
 			<input
 				on:blur={() => (showAddList = false)}
-        bind:value={newListName}
+				bind:value={newListName}
 				id="list-name"
 				name="list-name"
 				minlength="1"
