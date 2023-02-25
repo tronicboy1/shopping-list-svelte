@@ -38,6 +38,7 @@
 		<form autocomplete="off" on:submit|preventDefault={handleNewList}>
 			<input
 				on:blur={() => (showAddList = false)}
+        bind:value={newListName}
 				id="list-name"
 				name="list-name"
 				minlength="1"
