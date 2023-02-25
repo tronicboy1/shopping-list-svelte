@@ -2,34 +2,32 @@
 	import { Firebase } from '$lib/firebase';
 	import { ListService, type Lists } from '$lib/list.service';
 	import { filterForDoubleClick } from '$lib/pipe-operators';
-	import {
-		buffer,
-		debounceTime,
-		filter,
-		first,
-		map,
-		mergeMap,
-		Subject,
-		Subscription,
-		withLatestFrom
-	} from 'rxjs';
+	import { first, mergeMap, Subject, switchMap, takeUntil, withLatestFrom } from 'rxjs';
 	import { onDestroy } from 'svelte';
 
 	export let list: Lists[0];
 
-	const subscriptions = new Subscription();
-	onDestroy(() => subscriptions.unsubscribe());
+	const teardown$ = new Subject<void>();
+	onDestroy(() => teardown$.next());
 
 	const tileClick$ = new Subject<string>();
-	subscriptions.add(
-		tileClick$
-			.pipe(
-				filterForDoubleClick(),
-				withLatestFrom(Firebase.uid$),
-				mergeMap(([itemId, uid]) => ListService.deleteItem(uid, list.key, itemId))
-			)
-			.subscribe()
-	);
+	tileClick$
+		.pipe(
+			takeUntil(teardown$),
+			filterForDoubleClick(),
+			withLatestFrom(Firebase.uid$),
+			mergeMap(([itemId, uid]) => ListService.deleteItem(uid, list.key, itemId))
+		)
+		.subscribe();
+	const deleteClick$ = new Subject<void>();
+	deleteClick$
+		.pipe(
+			takeUntil(teardown$),
+			filterForDoubleClick(),
+			switchMap(() => Firebase.uid$),
+			switchMap((uid) => ListService.deleteList(uid, list.key))
+		)
+		.subscribe();
 
 	let todoInput = '';
 	const handleListAdd = () => {
@@ -80,8 +78,8 @@
 						{#if item.amount && item.amount > 1} <small>x{item.amount}</small>{/if}
 					</li>
 				{/each}
-      {:else}
-        <button type="button"></button>
+			{:else}
+				<button type="button" class="delete" on:click={() => deleteClick$.next()}>Delete List</button>
 			{/if}
 		</ul>
 	</div>
