@@ -1,6 +1,6 @@
 import { child, DataSnapshot, get, onValue, push, ref, remove, set } from 'firebase/database';
 import { ref as getStorageRef, deleteObject } from 'firebase/storage';
-import { from, map, mergeMap, Observable, timeout } from 'rxjs';
+import { from, map, mergeMap, Observable, startWith, timeout } from 'rxjs';
 import { Firebase } from './firebase';
 
 export type ShoppingListData = Record<string, ShoppingListItem>;
@@ -15,17 +15,40 @@ export interface ShoppingListItem {
 	order: number;
 }
 
-export type ListGroups = Record<string, { data: ShoppingListItem | undefined; listName: string }>;
+export type ListGroups = Record<
+	string,
+	{ data: Record<string, ShoppingListItem>; listName: string }
+>;
+
+export type Lists = {
+	data: (ShoppingListItem & { key: string })[];
+	listName: string;
+	key: string;
+}[];
 
 export class ListService {
-	private static _listsCache$?: Observable<ListGroups>;
+	private static _listsCache$?: Observable<Lists>;
 	private static _cachedUid?: string;
 
-	public static getLists(uid: string): Observable<ListGroups> {
+	public static getLists(uid: string): Observable<Lists> {
 		if (uid !== this._cachedUid) this._listsCache$ = undefined;
 		return (this._listsCache$ ||= this.getOnValueObserver(uid).pipe(
 			timeout({ first: 4000 }),
-			map((result) => result.val() ?? {})
+			map((result) => (result.val() ?? {}) as ListGroups),
+			map((lists) => Object.entries(lists)),
+			map((lists) => lists.map(([key, value]) => ({ key, ...value }))),
+			map((lists) =>
+				lists.map((list) => ({
+					...list,
+					data: list.data
+						? Object.entries(list.data!).map(([key, data]) => ({
+								key,
+								...data
+						  }))
+						: []
+				}))
+			),
+			startWith([])
 		));
 	}
 
