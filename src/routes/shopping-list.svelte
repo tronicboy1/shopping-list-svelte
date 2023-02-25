@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Firebase } from '$lib/firebase';
 	import { ListService, type Lists } from '$lib/list.service';
+	import { filterForDoubleClick } from '$lib/pipe-operators';
 	import {
 		buffer,
 		debounceTime,
@@ -23,9 +24,7 @@
 	subscriptions.add(
 		tileClick$
 			.pipe(
-				buffer(tileClick$.pipe(debounceTime(250))),
-				filter((clicks) => clicks.length > 1),
-				map(([id]) => id),
+				filterForDoubleClick(),
 				withLatestFrom(Firebase.uid$),
 				mergeMap(([itemId, uid]) => ListService.deleteItem(uid, list.key, itemId))
 			)
@@ -67,19 +66,23 @@
 			</button>
 		</form>
 		<ul>
-			{#each list.data as item}
-				<li
-					id={item.key}
-					draggable="true"
-					class:priority={item.priority}
-					class="item"
-					on:click={() => tileClick$.next(item.key)}
-					on:keydown={() => {}}
-				>
-					<span>{item.item}</span>
-					{#if item.amount && item.amount > 1} <small>x{item.amount}</small>{/if}
-				</li>
-			{/each}
+			{#if list.data.length}
+				{#each list.data as item}
+					<li
+						id={item.key}
+						draggable="true"
+						class:priority={item.priority}
+						class="item"
+						on:click={() => tileClick$.next(item.key)}
+						on:keydown={() => {}}
+					>
+						<span>{item.item}</span>
+						{#if item.amount && item.amount > 1} <small>x{item.amount}</small>{/if}
+					</li>
+				{/each}
+      {:else}
+        <button type="button"></button>
+			{/if}
 		</ul>
 	</div>
 </li>
