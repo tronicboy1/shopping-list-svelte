@@ -1,6 +1,6 @@
-import { child, DataSnapshot, get, onValue, push, ref, remove, set } from 'firebase/database';
+import { child, get, push, ref, remove, set } from 'firebase/database';
 import { ref as getStorageRef, deleteObject } from 'firebase/storage';
-import { from, map, mergeMap, Observable, timeout } from 'rxjs';
+import { from, map, mergeMap, Observable } from 'rxjs';
 import { Firebase } from './firebase';
 
 export type ShoppingListData = Record<string, ShoppingListItem>;
@@ -27,13 +27,12 @@ export type Lists = {
 }[];
 
 export class ListService {
-	private static _listsCache$?: Observable<Lists>;
-	private static _cachedUid?: string;
-
+	/**
+	 * Gets all lists and their data.
+	 * COLD Observable.
+	 */
 	public static getLists(uid: string): Observable<Lists> {
-		if (uid !== this._cachedUid) this._listsCache$ = undefined;
-		return (this._listsCache$ ||= this.getOnValueObserver(uid).pipe(
-			timeout({ first: 4000 }),
+		return from(get(ref(Firebase.db, `${uid}/SHOPPING-LISTS/`))).pipe(
 			map((result) => (result.val() ?? {}) as ListGroups),
 			map((lists) => Object.entries(lists)),
 			map((lists) => lists.map(([key, value]) => ({ key, ...value }))),
@@ -48,7 +47,7 @@ export class ListService {
 						: []
 				}))
 			)
-		));
+		);
 	}
 
 	public static deleteList(uid: string, listId: string) {
@@ -92,16 +91,6 @@ export class ListService {
 
 	public static updateList(uid: string, listId: string, newData: ShoppingListData) {
 		return set(this.getDatabaseRef(uid, listId), newData);
-	}
-
-	private static getOnValueObserver(uid: string) {
-		return new Observable<DataSnapshot>((observer) =>
-			onValue(
-				ref(Firebase.db, `${uid}/SHOPPING-LISTS/`),
-				(snapshot) => observer.next(snapshot),
-				(err) => observer.error(err)
-			)
-		);
 	}
 
 	private static getDatabaseRef(uid: string, listId: string, data = true) {

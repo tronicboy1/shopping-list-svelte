@@ -2,23 +2,24 @@
 	import { Firebase } from '$lib/firebase';
 	import { ListService, type Lists } from '$lib/list.service';
 	import { filterForDoubleClick } from '$lib/pipe-operators';
-	import { first, mergeMap, Subject, switchMap, takeUntil, withLatestFrom } from 'rxjs';
-	import { onDestroy } from 'svelte';
+	import { first, mergeMap, share, Subject, switchMap, takeUntil, withLatestFrom } from 'rxjs';
+	import { onDestroy, createEventDispatcher } from 'svelte';
 
 	export let list: Lists[0];
 
 	const teardown$ = new Subject<void>();
 	onDestroy(() => teardown$.next());
+	const dispatcher = createEventDispatcher();
 
 	const tileClick$ = new Subject<string>();
-	tileClick$
+	const tileDoubleClick$ = tileClick$.pipe(filterForDoubleClick(), share());
+	tileDoubleClick$
 		.pipe(
 			takeUntil(teardown$),
-			filterForDoubleClick(),
 			withLatestFrom(Firebase.uid$),
 			mergeMap(([itemId, uid]) => ListService.deleteItem(uid, list.key, itemId))
 		)
-		.subscribe();
+		.subscribe(() => dispatcher('refresh'));
 	const deleteClick$ = new Subject<void>();
 	deleteClick$
 		.pipe(
@@ -27,7 +28,7 @@
 			switchMap(() => Firebase.uid$),
 			switchMap((uid) => ListService.deleteList(uid, list.key))
 		)
-		.subscribe();
+		.subscribe(() => dispatcher('refresh'));
 
 	let todoInput = '';
 	const handleListAdd = () => {
@@ -37,7 +38,10 @@
 				first(),
 				mergeMap((uid) => ListService.addItem(uid, list.key, { item: todo }))
 			)
-			.subscribe(() => (todoInput = ''));
+			.subscribe(() => {
+				todoInput = '';
+				dispatcher('refresh');
+			});
 	};
 </script>
 
@@ -73,6 +77,7 @@
 						class="item"
 						on:click={() => tileClick$.next(item.key)}
 						on:keydown={() => {}}
+						class:deleting={$tileDoubleClick$ === item.key}
 					>
 						<span>{item.item}</span>
 						{#if item.amount && item.amount > 1} <small>x{item.amount}</small>{/if}
@@ -150,8 +155,14 @@
 		background-color: var(--primary-color);
 	}
 
+	.deleting {
+		color: grey !important;
+		background-color: lightgray !important;
+	}
+
 	.card {
 		padding-top: 0;
+		position: relative;
 	}
 	:host([hide-list]) .card {
 		padding: 0 1rem 0 1rem;
