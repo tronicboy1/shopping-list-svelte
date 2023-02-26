@@ -2,7 +2,7 @@
 	import { Firebase } from '$lib/firebase';
 	import { ListService, type Lists } from '$lib/list.service';
 	import { filterForDoubleClick } from '$lib/pipe-operators';
-	import { first, mergeMap, share, Subject, switchMap, takeUntil, withLatestFrom } from 'rxjs';
+	import { first, map, mergeMap, share, Subject, switchMap, takeUntil, withLatestFrom } from 'rxjs';
 	import { onDestroy, createEventDispatcher } from 'svelte';
 
 	export let list: Lists[0];
@@ -21,14 +21,15 @@
 		)
 		.subscribe(() => dispatcher('refresh'));
 	const deleteClick$ = new Subject<void>();
-	deleteClick$
+	const deleteDoubleClick$ = deleteClick$.pipe(filterForDoubleClick(), share());
+	deleteDoubleClick$
 		.pipe(
 			takeUntil(teardown$),
-			filterForDoubleClick(),
 			switchMap(() => Firebase.uid$),
 			switchMap((uid) => ListService.deleteList(uid, list.key))
 		)
 		.subscribe(() => dispatcher('refresh'));
+	const deleting$ = deleteDoubleClick$.pipe(map(() => true));
 
 	let todoInput = '';
 	const handleListAdd = () => {
@@ -84,8 +85,11 @@
 					</li>
 				{/each}
 			{:else}
-				<button type="button" class="delete" on:click={() => deleteClick$.next()}
-					>Delete List</button
+				<button
+					type="button"
+					class="delete"
+					on:click={() => deleteClick$.next()}
+					class:deleting={$deleting$}>Delete List</button
 				>
 			{/if}
 		</ul>
@@ -158,6 +162,7 @@
 	.deleting {
 		color: grey !important;
 		background-color: lightgray !important;
+		border-color: lightgray !important;
 	}
 
 	.card {
