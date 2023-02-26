@@ -6,7 +6,6 @@
 	import { onDestroy, createEventDispatcher } from 'svelte';
 
 	export let list: Lists[0];
-
 	const teardown$ = new Subject<void>();
 	onDestroy(() => teardown$.next());
 	const dispatcher = createEventDispatcher();
@@ -19,7 +18,7 @@
 			withLatestFrom(Firebase.uid$),
 			mergeMap(([itemId, uid]) => ListService.deleteItem(uid, list.key, itemId))
 		)
-		.subscribe(() => dispatcher('refresh'));
+		.subscribe();
 	const deleteClick$ = new Subject<void>();
 	const deleteDoubleClick$ = deleteClick$.pipe(filterForDoubleClick(), share());
 	deleteDoubleClick$
@@ -41,7 +40,6 @@
 			)
 			.subscribe(() => {
 				todoInput = '';
-				dispatcher('refresh');
 			});
 	};
 </script>
