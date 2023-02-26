@@ -3,21 +3,27 @@
 	import { ListService } from '$lib/list.service';
 	import List from './shopping-list.svelte';
 	import Spinner from './loading-spinner.svelte';
-	import { combineLatest, first, mergeMap, startWith, Subject, switchMap } from 'rxjs';
+	import { combineLatest, first, mergeMap, retry, startWith, Subject, switchMap, tap } from 'rxjs';
 	import { stopWhileHidden } from '$lib/pipe-operators';
 
 	let showAddList = false;
 	let newListName = '';
+	let addingNewList = false;
 
 	const refreshSubject = new Subject<void>();
 	const refresh$ = refreshSubject.pipe(startWith(undefined));
 	const lists$ = combineLatest([Firebase.uid$, refresh$]).pipe(
 		switchMap(([uid]) => ListService.getLists(uid)),
-		stopWhileHidden()
+		stopWhileHidden(),
+		retry({ count: 5, delay: 500 }),
+		tap({
+			error: (err) => alert(JSON.stringify(err))
+		})
 	);
 
 	const handleNewList = () => {
-		if (newListName.length > 32) return;
+		if (newListName.length > 32 || addingNewList) return;
+		addingNewList = true;
 		Firebase.uid$
 			.pipe(
 				first(),
@@ -29,7 +35,10 @@
 					showAddList = false;
 					refreshSubject.next();
 				},
-				error: (error) => alert(error)
+				error: (error) => alert(error),
+				complete: () => {
+					addingNewList = false;
+				}
 			});
 	};
 </script>

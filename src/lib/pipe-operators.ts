@@ -12,7 +12,7 @@ import {
 export function filterForDoubleClick<T>(): MonoTypeOperatorFunction<T> {
 	return (source) =>
 		source.pipe(
-			buffer(source.pipe(debounceTime(250))),
+			buffer(source.pipe(debounceTime(200))),
 			filter((clicks) => clicks.length > 1),
 			map(([value]) => value)
 		);

@@ -2,7 +2,7 @@
 	import { Firebase } from '$lib/firebase';
 	import { ListService, type Lists } from '$lib/list.service';
 	import { filterForDoubleClick } from '$lib/pipe-operators';
-	import { first, map, mergeMap, share, Subject, switchMap, takeUntil, withLatestFrom } from 'rxjs';
+	import { distinctUntilChanged, first, map, mergeMap, share, Subject, switchMap, takeUntil, withLatestFrom } from 'rxjs';
 	import { onDestroy, createEventDispatcher } from 'svelte';
 
 	export let list: Lists[0];
@@ -15,6 +15,7 @@
 	tileDoubleClick$
 		.pipe(
 			takeUntil(teardown$),
+			distinctUntilChanged(),
 			withLatestFrom(Firebase.uid$),
 			mergeMap(([itemId, uid]) => ListService.deleteItem(uid, list.key, itemId))
 		)
@@ -31,15 +32,23 @@
 	const deleting$ = deleteDoubleClick$.pipe(map(() => true));
 
 	let todoInput = '';
+	let addingNewItem = false;
 	const handleListAdd = () => {
 		const todo = todoInput.trim();
+		if (!todo || addingNewItem) return;
+		addingNewItem = true;
 		Firebase.uid$
 			.pipe(
 				first(),
 				mergeMap((uid) => ListService.addItem(uid, list.key, { item: todo }))
 			)
-			.subscribe(() => {
-				todoInput = '';
+			.subscribe({
+				next: () => {
+					todoInput = '';
+				},
+				complete: () => {
+					addingNewItem = false;
+				}
 			});
 	};
 </script>
