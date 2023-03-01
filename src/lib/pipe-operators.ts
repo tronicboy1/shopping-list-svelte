@@ -17,12 +17,15 @@ export function filterForDoubleClick<T>(): MonoTypeOperatorFunction<T> {
 			map(([value]) => value)
 		);
 }
-
+/**
+ * Page Visibility APIでObservableを一時的に中断するPipe Operator
+ */
 export function stopWhileHidden<T>(): MonoTypeOperatorFunction<T> {
-	const visibilityEvent$ = fromEvent(document, 'visibilitychange').pipe(startWith(undefined));
-	return (source) =>
-		visibilityEvent$.pipe(
-			filter(() => document.visibilityState === 'visible'),
-			switchMap(() => source)
-		);
+        const visibilityEvent$ = fromEvent(document, 'visibilitychange').pipe(startWith(undefined));
+        return (source) =>
+            visibilityEvent$.pipe(
+                map(() => document.visibilityState === 'visible'),
+                switchMap((isVisible) => (isVisible ? source : of<T>()))
+            );
+    }
 }
