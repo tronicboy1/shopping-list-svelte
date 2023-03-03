@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { Firebase } from '$lib/firebase';
-	import { signInWithEmailAndPassword } from 'firebase/auth';
+	import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 	let error = '';
 	let mode: 'LOGIN' | 'REGISTER' = 'LOGIN';
 	let username = '';
@@ -10,12 +10,24 @@
 
 	const handleSubmit: EventListener = () => {
 		if (!(username && password)) return;
-		console.log(username, password);
-		signInWithEmailAndPassword(Firebase.auth, username, password)
-			.then(() => goto('/'))
-			.catch((authError) => {
-				error = authError.message;
-			});
+		switch (mode) {
+			case 'LOGIN':
+				signInWithEmailAndPassword(Firebase.auth, username, password)
+					.then(() => goto('/'))
+					.catch((authError) => {
+						error = authError.message;
+					});
+				break;
+			case 'REGISTER':
+				createUserWithEmailAndPassword(Firebase.auth, username, password)
+					.then(() => goto('/'))
+					.catch((authError) => {
+						error = authError.message;
+					});
+				break;
+			default:
+				break;
+		}
 	};
 </script>
 
