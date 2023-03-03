@@ -4,6 +4,7 @@ import {
 	filter,
 	fromEvent,
 	map,
+	of,
 	startWith,
 	switchMap,
 	type MonoTypeOperatorFunction
@@ -21,11 +22,10 @@ export function filterForDoubleClick<T>(): MonoTypeOperatorFunction<T> {
  * Page Visibility APIでObservableを一時的に中断するPipe Operator
  */
 export function stopWhileHidden<T>(): MonoTypeOperatorFunction<T> {
-        const visibilityEvent$ = fromEvent(document, 'visibilitychange').pipe(startWith(undefined));
-        return (source) =>
-            visibilityEvent$.pipe(
-                map(() => document.visibilityState === 'visible'),
-                switchMap((isVisible) => (isVisible ? source : of<T>()))
-            );
-    }
+	const visibilityEvent$ = fromEvent(document, 'visibilitychange').pipe(startWith(undefined));
+	return (source) =>
+		visibilityEvent$.pipe(
+			map(() => document.visibilityState === 'visible'),
+			switchMap((isVisible) => (isVisible ? source : of()))
+		);
 }
