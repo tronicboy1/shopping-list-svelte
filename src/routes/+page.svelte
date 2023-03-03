@@ -15,7 +15,7 @@
 	const lists$ = combineLatest([Firebase.uid$, refresh$]).pipe(
 		switchMap(([uid]) => ListService.getLists(uid)),
 		stopWhileHidden(),
-		retry({ count: 5, delay: 500 }),
+		retry({ count: 5, delay: 1000 }),
 		tap({
 			error: (err) => alert(JSON.stringify(err))
 		})
