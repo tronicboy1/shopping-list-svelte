@@ -53,5 +53,3 @@ export class Firebase {
 		return getStorage(this.app);
 	}
 }
-
-Firebase.auth.useDeviceLanguage();

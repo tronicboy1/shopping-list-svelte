@@ -2,7 +2,17 @@
 	import { Firebase } from '$lib/firebase';
 	import { ListService, type Lists } from '$lib/list.service';
 	import { filterForDoubleClick } from '$lib/pipe-operators';
-	import { distinctUntilChanged, first, map, mergeMap, share, Subject, switchMap, takeUntil, withLatestFrom } from 'rxjs';
+	import {
+		distinctUntilChanged,
+		first,
+		map,
+		mergeMap,
+		share,
+		Subject,
+		switchMap,
+		takeUntil,
+		withLatestFrom
+	} from 'rxjs';
 	import { onDestroy, createEventDispatcher } from 'svelte';
 
 	export let list: Lists[0];
@@ -46,6 +56,7 @@
 				next: () => {
 					todoInput = '';
 				},
+				error: alert,
 				complete: () => {
 					addingNewItem = false;
 				}
