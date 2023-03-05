@@ -654,6 +654,13 @@
     svelte-hmr "^0.15.1"
     vitefu "^0.2.3"
 
+"@tronicboy/rxjs-operators@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@tronicboy/rxjs-operators/-/rxjs-operators-0.0.2.tgz#264ee15f0c3e0ec1b26d8e6a64f85576bf48e8a4"
+  integrity sha512-tU+9HXUmb2ObOstZ85IATLf3MC/zNP6rVVxae3bEN7lEYGwtHMINg9IjGUbJ0qowlqz7q68pUZOmzVLidE6T9Q==
+  dependencies:
+    rxjs "^7.8.0"
+
 "@types/cookie@^0.5.1":
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/@types/cookie/-/cookie-0.5.1.tgz#b29aa1f91a59f35e29ff8f7cb24faf1a3a750554"

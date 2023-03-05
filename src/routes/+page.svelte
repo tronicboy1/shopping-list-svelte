@@ -4,7 +4,7 @@
 	import List from './shopping-list.svelte';
 	import Spinner from './loading-spinner.svelte';
 	import { combineLatest, first, mergeMap, retry, startWith, Subject, switchMap, tap } from 'rxjs';
-	import { stopWhileHidden } from '$lib/pipe-operators';
+	import { stopWhileHidden } from '@tronicboy/rxjs-operators';
 
 	let showAddList = false;
 	let newListName = '';

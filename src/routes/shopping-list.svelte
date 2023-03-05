@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Firebase } from '$lib/firebase';
 	import { ListService, type Lists } from '$lib/list.service';
-	import { filterForDoubleClick } from '$lib/pipe-operators';
+	import { filterForDoubleClick } from '@tronicboy/rxjs-operators';
 	import {
 		distinctUntilChanged,
 		first,

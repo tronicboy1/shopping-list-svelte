@@ -25,6 +25,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@tronicboy/rxjs-operators": "^0.0.2",
 		"firebase": "^9.17.1",
 		"rxjs": "^7.8.0"
 	}
