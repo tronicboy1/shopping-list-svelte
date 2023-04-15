@@ -6,7 +6,9 @@ import {
 	remove,
 	set,
 	onChildAdded,
-	onChildRemoved
+	onChildRemoved,
+	query,
+	orderByKey
 } from 'firebase/database';
 import { ref as getStorageRef, deleteObject } from 'firebase/storage';
 import {
@@ -55,10 +57,12 @@ export class ListService {
 	 * HOT Observable for list items.
 	 */
 	public static getLists(uid: string): Observable<Lists> {
-		return from(get(ref(Firebase.db, `${uid}/SHOPPING-LISTS/`))).pipe(
+		const q = query(ref(Firebase.db, `${uid}/SHOPPING-LISTS/`), orderByKey());
+		return from(get(q)).pipe(
 			map((result) => (result.val() ?? {}) as ListGroups),
 			map((lists) => Object.entries(lists)),
 			map((lists) => lists.map(([key, value]) => ({ key, ...value }))),
+			map(lists => lists.reverse()),
 			map((lists) =>
 				lists.map((list) => ({
 					...list,
