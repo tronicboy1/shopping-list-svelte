@@ -17,16 +17,16 @@
 		"@sveltejs/kit": "^1.15.5",
 		"prettier": "^2.8.0",
 		"prettier-plugin-svelte": "^2.8.1",
-		"svelte": "^3.58.0",
-		"svelte-check": "^3.2.0",
-		"tslib": "^2.4.1",
+		"svelte": "^3.59.1",
+		"svelte-check": "^3.4.3",
+		"tslib": "^2.5.2",
 		"typescript": "^5.0.4",
-		"vite": "^4.2.1"
+		"vite": "^4.3.9"
 	},
 	"type": "module",
 	"dependencies": {
 		"@tronicboy/rxjs-operators": "^0.0.3",
-		"firebase": "^9.19.1",
-		"rxjs": "^7.8.0"
+		"firebase": "^9.22.1",
+		"rxjs": "^7.8.1"
 	}
 }
